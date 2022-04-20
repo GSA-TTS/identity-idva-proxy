@@ -1,0 +1,12 @@
+---
+version: 1
+applications:
+  - name: outbound-proxy
+    buildpacks:
+      - binary_buildpack
+    routes:
+      - route: outbound-proxy-((ENVIRONMENT_NAME)).apps.internal
+    health-check-type: process
+    instances: 2
+    memory: 64M
+    command: ./caddy run --config Caddyfile

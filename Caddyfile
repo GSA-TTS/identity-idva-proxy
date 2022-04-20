@@ -1,0 +1,24 @@
+{
+	log {
+		format json
+		level INFO
+	}
+	auto_https off
+}
+
+:{$PORT} {
+	route {
+		forward_proxy {
+			acl {
+				allow_file allow.acl
+				deny all
+			}
+			ports 443
+			serve_pac
+		}
+	}
+	log {
+		format json
+		level INFO
+	}
+}

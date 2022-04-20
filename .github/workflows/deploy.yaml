@@ -1,0 +1,46 @@
+---
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+    paths-ignore:
+      - '**.md'  # All markdown files in the repository
+  release:
+    types: [released]
+
+jobs:
+  deploy:
+    if: github.repository_owner == '18F'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: 18F/identity-idva-cf-setup@v2
+        id: cf-setup
+        with:
+          cf-username: ${{ secrets.CF_USERNAME }}
+          cf-password: ${{ secrets.CF_PASSWORD }}
+          cf-org: ${{ secrets.CF_ORG }}
+          space-suffix: "-public"
+
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.17.x"
+
+      - name: Build Caddy
+        run: ./install_caddy.sh && ./caddy version
+
+      - name: Generate allow.acl
+        env:
+          ALLOW_LIST: ${{ secrets.PROXY_ALLOW }}
+        run: echo "$ALLOW_LIST" > allow.acl
+
+      - name: Deploy Application
+        run: cf push
+          --var ENVIRONMENT_NAME=${{ steps.cf-setup.outputs.target-environment }}
+          --strategy rolling
