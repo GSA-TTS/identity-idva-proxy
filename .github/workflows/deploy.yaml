@@ -48,6 +48,11 @@ jobs:
 
       - name: Create or update proxy u-p service
         run: |
-          cf target -s ${{ steps.cf-setup.outputs.target-environment }}
           props='{"proxy_url": "https://outbound-proxy-${{ steps.cf-setup.outputs.target-environment }}.apps.internal:61443", "proxy_url_no_tls" : "http://outbound-proxy-${{ steps.cf-setup.outputs.target-environment }}.apps.internal:8080"}'
+
+          cf target -s ${{ steps.cf-setup.outputs.target-environment }}
+          cf create-user-provided-service outbound-proxy -p "$props" || cf update-user-provided-service outbound-proxy -p "$props"
+          cf target -s ${{ steps.cf-setup.outputs.target-environment }}-closed
+          cf create-user-provided-service outbound-proxy -p "$props" || cf update-user-provided-service outbound-proxy -p "$props"
+          cf target -s ${{ steps.cf-setup.outputs.target-environment }}-warpgate
           cf create-user-provided-service outbound-proxy -p "$props" || cf update-user-provided-service outbound-proxy -p "$props"
