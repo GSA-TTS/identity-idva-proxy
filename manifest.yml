@@ -10,3 +10,5 @@ applications:
     instances: 2
     memory: 64M
     command: ./caddy run --config Caddyfile
+    services:
+      - outbound-proxy-acl
