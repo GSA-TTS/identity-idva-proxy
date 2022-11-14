@@ -36,11 +36,6 @@ jobs:
       - name: Build Caddy
         run: ./install_caddy.sh && ./caddy version
 
-      - name: Generate allow.acl
-        env:
-          ALLOW_LIST: ${{ secrets.PROXY_ALLOW }}
-        run: echo "$ALLOW_LIST" > allow.acl
-
       - name: Deploy Application
         run: cf push
           --var ENVIRONMENT_NAME=${{ steps.cf-setup.outputs.target-environment }}
